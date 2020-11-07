@@ -1,6 +1,8 @@
 import os
 from telegram import ReplyKeyboardRemove
 from telegram import ReplyKeyboardMarkup
+from .constants import *
+from .http_sessinon import HttpSession
 
 
 def user_checker(update, context):
@@ -26,13 +28,43 @@ def user_checker(update, context):
 
 def start(update, context):
     btns = [
-        ['💹 Добавить доход'],
-        ['🔻 Добавить расход'],
-        ['🏦 Счета', '⚙️ Опции'],
+        [ADD_INCOME],
+        [ADD_LOSE],
+        [DEPOSITS, '⚙️ Опции'],
+        [CLEAR_DIALOG]
     ]
 
     update.message.reply_text(
         f'<b>Привет, @{update.message.from_user.username}</b>',
         parse_mode='HTML',
         reply_markup=ReplyKeyboardMarkup(btns, resize_keyboard=True)
+    )
+
+
+def clear_dialog(update, context):
+    chat_id = update.message.chat.id
+
+    current_msg_id = update.message.message_id
+
+    for i in range(current_msg_id-50, current_msg_id+1):
+        try:
+            context.bot.delete_message(chat_id, i)
+        except:
+            pass
+
+    start(update, context)
+
+
+def deposit_list(update, context):
+    loading_msg = update.message.reply_text('<i>⌛️ Загрузка...</i>', parse_mode='HTML')
+
+    resp = HttpSession().get('deposits/').json()
+
+    msg_text = ''
+    for i in resp['deposits']:
+        msg_text += f'{i["emoji"]} <b>{i["name"]}</b>  <code>{i["balance"]}{i["symbol"]}</code>\n'
+
+    loading_msg.edit_text(
+        msg_text,
+        parse_mode='HTML',
     )

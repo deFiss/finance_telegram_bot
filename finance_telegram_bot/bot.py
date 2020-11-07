@@ -4,7 +4,8 @@ from .filters import AdminWhitelistFilter
 from dotenv import load_dotenv
 import os
 from . import handlers
-from .сonversations import AddLossConversation
+from .constants import *
+from .сonversations import AddLossConversation, AddIncomeConversation
 
 
 class Bot:
@@ -14,6 +15,7 @@ class Bot:
         self._updater = Updater(token=os.getenv('TELEGRAM_BOT_TOKEN'), use_context=True)
         self._dp = self._updater.dispatcher
 
+        self.add_income_conversation = AddIncomeConversation()
         self.add_loss_conversation = AddLossConversation()
 
     def start(self):
@@ -28,9 +30,28 @@ class Bot:
 
         self._dp.add_handler(CommandHandler('start', handlers.start))
 
+        self._dp.add_handler(MessageHandler(Filters.regex(DEPOSITS), callback=handlers.deposit_list))
+        self._dp.add_handler(MessageHandler(Filters.regex(CLEAR_DIALOG), callback=handlers.clear_dialog))
+
+        # Add income conversation handler
         self._dp.add_handler(ConversationHandler(
             entry_points=[
-                MessageHandler(Filters.regex('🔻 Добавить расход'), callback=self.add_loss_conversation.select_deposit)
+                MessageHandler(Filters.regex(ADD_INCOME), callback=self.add_income_conversation.select_deposit)
+            ],
+            states={
+                'select_type': [CallbackQueryHandler(self.add_income_conversation.select_type, pattern='income_deposit.+')],
+                'select_amount': [CallbackQueryHandler(self.add_income_conversation.select_amount, pattern='income_type_.+')],
+                'add_income': [MessageHandler(Filters.text, callback=self.add_income_conversation.add_income)],
+
+            },
+            fallbacks=[CommandHandler("start", handlers.start)],
+            allow_reentry=True,
+        ))
+
+        # Add lose conversation handler
+        self._dp.add_handler(ConversationHandler(
+            entry_points=[
+                MessageHandler(Filters.regex(ADD_LOSE), callback=self.add_loss_conversation.select_deposit)
             ],
             states={
                 'select_type': [CallbackQueryHandler(self.add_loss_conversation.select_type, pattern='loss_deposit.+')],

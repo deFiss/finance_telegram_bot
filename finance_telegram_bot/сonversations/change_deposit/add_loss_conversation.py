@@ -1,4 +1,4 @@
-from .base_conversation import *
+from finance_telegram_bot.сonversations.base_conversation import *
 
 
 class AddLossConversation(BaseConversation):
@@ -6,10 +6,13 @@ class AddLossConversation(BaseConversation):
     @send_loading_message
     @delete_message
     def select_deposit(self, update, context, loading_msg):
-        resp = self.session.get(self.base_path + 'deposits/').json()
+        resp = self.session.get('deposits/').json()
         btns = []
         for item in resp['deposits']:
-            btn = InlineKeyboardButton(f'{item["emoji"]} {item["name"]}', callback_data='loss_deposit_'+item['_id'])
+            btn = InlineKeyboardButton(
+                f'{item["emoji"]} {item["name"]}',
+                callback_data=f'loss_deposit_{item["symbol"]}_{item["_id"]}'
+            )
             btns.append([btn])
 
         loading_msg.edit_text(
@@ -24,8 +27,9 @@ class AddLossConversation(BaseConversation):
     @delete_message
     def select_type(self, update, context, loading_msg):
         context.user_data['loss_deposit_id'] = update.callback_query.data.split('_')[-1]
+        context.user_data['loss_deposit_symbol'] = update.callback_query.data.split('_')[-2]
 
-        resp = self.session.get(self.base_path + 'types_of_losses/').json()
+        resp = self.session.get('types_of_losses/').json()
 
         btns = []
         for item in resp['types_of_losses']:
@@ -69,8 +73,6 @@ class AddLossConversation(BaseConversation):
             quantity = text
             comment = None
 
-        print(comment)
-
         data = {
             'deposit_id': context.user_data['loss_deposit_id'],
             'type_id': context.user_data['loss_type_id'],
@@ -78,20 +80,26 @@ class AddLossConversation(BaseConversation):
             'comment': comment
         }
 
-        history_resp = self.session.post(self.base_path + 'loss_history/', data=data)
+        history_resp = self.session.post('loss_history/', data=data)
 
-        deposit_info_resp = self.session.get(f'{self.base_path}deposits/{context.user_data["loss_deposit_id"]}/').json()
-        print(deposit_info_resp)
+        deposit_info_resp = self.session.get(f'deposits/{context.user_data["loss_deposit_id"]}/').json()
         deposit_current_balance = int(deposit_info_resp['deposit']['balance'])
 
         new_balance = deposit_current_balance - int(quantity)
 
         deposit_resp = self.session.put(
-            f'{self.base_path}deposits/{context.user_data["loss_deposit_id"]}/',
+            f'deposits/{context.user_data["loss_deposit_id"]}/',
             data={'balance': new_balance}
         )
 
+        symbol = context.user_data['loss_deposit_symbol']
+
         if history_resp.status_code == 200 and deposit_resp.status_code == 200:
-            update.message.reply_text('✅')
+            update.message.reply_text(
+                f'✅ Добавлен расход <b>{quantity}{symbol}</b>\n🏛 Текущий баланс депозита: <b>{new_balance}{symbol}</b>',
+                parse_mode='HTML',
+            )
         else:
             update.message.reply_text('❌')
+
+        return 'END'

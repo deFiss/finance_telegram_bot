@@ -1,8 +1,8 @@
-from telegram.ext import BaseFilter
+from telegram.ext import MessageFilter
 import os
 
 
-class AdminWhitelistFilter(BaseFilter):
+class AdminWhitelistFilter(MessageFilter):
     name = 'Filters.admin_whitelist_filter'
 
     def filter(self, message):

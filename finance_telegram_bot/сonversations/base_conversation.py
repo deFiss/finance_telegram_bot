@@ -1,5 +1,5 @@
 import os
-import requests
+from finance_telegram_bot.http_sessinon import HttpSession
 from telegram import ReplyKeyboardRemove
 from telegram import ReplyKeyboardMarkup
 from telegram import InlineKeyboardButton
@@ -8,9 +8,8 @@ from telegram import InlineKeyboardMarkup
 
 class BaseConversation:
     def __init__(self):
-        self.session = requests.session()
+        self.session = HttpSession()
         self.session.headers.update({'Authorization': f'Bearer {os.getenv("BACKEND_HOST_TOKEN")}'})
-        self.base_path = f'http://{os.getenv("BACKEND_HOST_IP")}:{os.getenv("BACKEND_HOST_PORT")}/api/v1/'
 
 
 def send_loading_message(func):
