@@ -29,7 +29,7 @@ class AddLossConversation(BaseConversation):
         context.user_data['loss_deposit_id'] = update.callback_query.data.split('_')[-1]
         context.user_data['loss_deposit_symbol'] = update.callback_query.data.split('_')[-2]
 
-        resp = self.session.get('types_of_losses/').json()
+        resp = self.session.get('type_of_loss/').json()
 
         btns = []
         for item in resp['types_of_losses']:

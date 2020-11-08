@@ -4,12 +4,13 @@ from telegram import ReplyKeyboardRemove
 from telegram import ReplyKeyboardMarkup
 from telegram import InlineKeyboardButton
 from telegram import InlineKeyboardMarkup
+from finance_telegram_bot.utils import get_submenu_keyboard
+from finance_telegram_bot.constants import *
 
 
 class BaseConversation:
     def __init__(self):
         self.session = HttpSession()
-        self.session.headers.update({'Authorization': f'Bearer {os.getenv("BACKEND_HOST_TOKEN")}'})
 
 
 def send_loading_message(func):
