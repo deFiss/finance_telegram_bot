@@ -11,4 +11,7 @@ class HttpSession(Session):
         args = list(args)
         args[1] = base_path + args[1]
 
+        if args[1][-1] != '/':
+            args[1] = args[1] + '/'
+
         return super().request(*args, **kwargs)

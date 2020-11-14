@@ -6,9 +6,8 @@ class ManageDepositsConversation(BaseManageModelConversation):
     def __init__(self):
         super().__init__()
 
-        self.model_name = 'счёт'
-        self.url_path = 'deposits/'
-        self.json_get_root_key = 'deposits'
+        self.verbose_model_name = 'счёт'
+        self.model_name = 'deposit'
         self.model_fields_list = [
             'balance',
             'symbol',

@@ -63,6 +63,15 @@ class Bot:
             }
         )
 
+        # Use template conversation handler
+        self._add_conversation_handler(
+            [MessageHandler(Filters.regex(USE_TEMPLATE), callback=use_template_conversation.select_template)],
+            {
+                'use': [CallbackQueryHandler(use_template_conversation.use, pattern='select_template_.+')],
+
+            }
+        )
+
         # Manage deposit conversation handler
         self._add_manage_model_handler(
             entry_btn_word=MANAGE_DEPOSITS,
@@ -95,6 +104,24 @@ class Bot:
             states={
                 'emoji': [MessageHandler(Filters.text, callback=manage_loss_types_conversation.emoji)],
                 'add_item': [MessageHandler(Filters.text, callback=manage_loss_types_conversation.add_item)],
+            }
+        )
+
+        # Manage template handler
+        self._add_manage_model_handler(
+            entry_btn_word=MANAGE_TEMPLATES,
+            model_conv_obj=manage_template_conversation,
+            first_data_state=MessageHandler(Filters.regex(ADD), callback=manage_template_conversation.name),
+            states={
+                'emoji': [MessageHandler(Filters.text, callback=manage_template_conversation.emoji)],
+                'deposit': [MessageHandler(Filters.text, callback=manage_template_conversation.deposit)],
+                'amount': [
+                    CallbackQueryHandler(manage_template_conversation.amount, pattern='manage_template_deposit_.+')
+                ],
+                'type': [MessageHandler(Filters.text, callback=manage_template_conversation.type)],
+                'add_item': [
+                    CallbackQueryHandler(manage_template_conversation.add_item, pattern='manage_template_type_.+')
+                ],
             }
         )
 

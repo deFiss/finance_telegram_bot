@@ -4,19 +4,18 @@ from finance_telegram_bot.сonversations.base_conversation import *
 class BaseManageModelConversation(BaseConversation):
 
     def __init__(self):
-        self.url_path = ''
+        self.verbose_model_name = ''
         self.model_name = ''
-        self.json_get_root_key = ''
         self.model_fields_list = []
         super().__init__()
 
     @send_loading_message
     @delete_message
     def menu(self, update, context, loading_msg):
-        response = self.session.get(self.url_path).json()
+        response = self.session.get(self.model_name).json()
         btns = []
 
-        for item in response[self.json_get_root_key]:
+        for item in response['data']:
 
             btn_text = f'{item["emoji"]} {item["name"]}'
             call_data = f'manage_delete_item_{item["_id"]}'
@@ -52,7 +51,7 @@ class BaseManageModelConversation(BaseConversation):
 
     @send_loading_message
     def delete_confirmed(self, update, context, loading_msg):
-        response = self.session.delete(f'{self.url_path}{context.user_data["delete_request_item_id"]}/')
+        response = self.session.delete(f'{self.model_name}/{context.user_data["delete_request_item_id"]}/')
 
         update.message.reply_text(
             f'<b>♻️ Удалено</b>',
@@ -65,26 +64,36 @@ class BaseManageModelConversation(BaseConversation):
         return 'END'
 
     def add_item(self, update, context):
-        context.user_data[f'manage_new_item_{self.model_fields_list[-1]}'] = update.message.text.replace('_', '')
+        if not update.callback_query:
+            context.user_data[f'manage_new_item_{self.model_fields_list[-1]}'] = update.message.text.replace('_', '')
+        else:
+            context.user_data[f'manage_new_item_{self.model_fields_list[-1]}'] = \
+                update.callback_query.data.split('_')[-1]
+            update.callback_query.answer('✅')
 
         data = {}
 
         for field_name in self.model_fields_list:
             data[field_name] = context.user_data[f'manage_new_item_{field_name}']
 
-        response = self.session.post(self.url_path, data=data)
+        response = self.session.post(self.model_name, data=data)
+
+        if update.callback_query:
+            message = update.callback_query.message
+        else:
+            message = update.message
 
         if response.status_code == 200:
 
-            update.message.reply_text(
-                f'<b>✅ Новый {self.model_name} добавлен</b>',
+            message.reply_text(
+                f'<b>✅ Новый {self.verbose_model_name} добавлен</b>',
                 parse_mode='HTML',
                 reply_markup=get_submenu_keyboard([[]])
             )
 
         else:
-            update.message.reply_text(
-                f'<b>❌ Произошла ошбика</b>',
+            message.reply_text(
+                f'<b>❌ Произошла ошибка</b>',
                 parse_mode='HTML',
                 reply_markup=get_submenu_keyboard([[]])
             )

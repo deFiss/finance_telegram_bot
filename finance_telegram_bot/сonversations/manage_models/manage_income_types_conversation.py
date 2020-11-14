@@ -6,9 +6,8 @@ class ManageIncomeTypesConversation(BaseManageModelConversation):
     def __init__(self):
         super().__init__()
 
-        self.model_name = 'тип дохода'
-        self.url_path = 'type_of_income/'
-        self.json_get_root_key = 'types_of_income'
+        self.verbose_model_name = 'тип дохода'
+        self.model_name = 'type_of_income'
         self.model_fields_list = [
             'name',
             'emoji'

@@ -29,10 +29,10 @@ def user_checker(update, context):
 
 def start(update, context):
     btns = [
-        [ADD_INCOME],
-        [ADD_LOSE],
+        [ADD_INCOME, ADD_LOSE],
+        [USE_TEMPLATE],
         [DEPOSITS, OPTIONS],
-        [CLEAR_DIALOG]
+        [CLEAR_DIALOG],
     ]
 
     update.message.reply_text(
@@ -41,11 +41,14 @@ def start(update, context):
         reply_markup=ReplyKeyboardMarkup(btns)
     )
 
+    return 'END'
+
 
 def options_menu(update, context):
     btns = [
         [MANAGE_DEPOSITS],
-        [MANAGE_INCOME_TYPES, MANAGE_LOSS_TYPES]
+        [MANAGE_INCOME_TYPES, MANAGE_LOSS_TYPES],
+        [MANAGE_TEMPLATES]
 
     ]
 
@@ -73,10 +76,10 @@ def clear_dialog(update, context):
 def deposit_list(update, context):
     loading_msg = update.message.reply_text('<i>⌛️ Загрузка...</i>', parse_mode='HTML')
 
-    resp = HttpSession().get('deposits/').json()
+    resp = HttpSession().get('deposit/').json()
 
     msg_text = ''
-    for i in resp['deposits']:
+    for i in resp['data']:
         msg_text += f'{i["emoji"]} <b>{i["name"]}</b>  <code>{i["balance"]}{i["symbol"]}</code>\n'
 
     loading_msg.edit_text(

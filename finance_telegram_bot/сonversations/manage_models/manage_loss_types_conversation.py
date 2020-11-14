@@ -6,9 +6,8 @@ class ManageLossTypesConversation(BaseManageModelConversation):
     def __init__(self):
         super().__init__()
 
-        self.model_name = 'тип расхода'
-        self.url_path = 'type_of_loss/'
-        self.json_get_root_key = 'types_of_losses'
+        self.verbose_model_name = 'тип расхода'
+        self.model_name = 'type_of_loss/'
         self.model_fields_list = [
             'name',
             'emoji'

@@ -6,9 +6,9 @@ class AddLossConversation(BaseConversation):
     @send_loading_message
     @delete_message
     def select_deposit(self, update, context, loading_msg):
-        resp = self.session.get('deposits/').json()
+        resp = self.session.get('deposit/').json()
         btns = []
-        for item in resp['deposits']:
+        for item in resp['data']:
             btn = InlineKeyboardButton(
                 f'{item["emoji"]} {item["name"]}',
                 callback_data=f'loss_deposit_{item["symbol"]}_{item["_id"]}'
@@ -32,7 +32,7 @@ class AddLossConversation(BaseConversation):
         resp = self.session.get('type_of_loss/').json()
 
         btns = []
-        for item in resp['types_of_losses']:
+        for item in resp['data']:
             btn = InlineKeyboardButton(f'{item["emoji"]} {item["name"]}', callback_data='loss_type_' + item['_id'])
             btns.append([btn])
 
@@ -82,13 +82,13 @@ class AddLossConversation(BaseConversation):
 
         history_resp = self.session.post('loss_history/', data=data)
 
-        deposit_info_resp = self.session.get(f'deposits/{context.user_data["loss_deposit_id"]}/').json()
-        deposit_current_balance = int(deposit_info_resp['deposit']['balance'])
+        deposit_info_resp = self.session.get(f'deposit/{context.user_data["loss_deposit_id"]}/').json()['data']
+        deposit_current_balance = int(deposit_info_resp['balance'])
 
         new_balance = deposit_current_balance - int(quantity)
 
         deposit_resp = self.session.put(
-            f'deposits/{context.user_data["loss_deposit_id"]}/',
+            f'deposit/{context.user_data["loss_deposit_id"]}/',
             data={'balance': new_balance}
         )
 
@@ -96,7 +96,7 @@ class AddLossConversation(BaseConversation):
 
         if history_resp.status_code == 200 and deposit_resp.status_code == 200:
             update.message.reply_text(
-                f'✅ Добавлен расход <b>{quantity}{symbol}</b>\n🏛 Текущий баланс депозита: <b>{new_balance}{symbol}</b>',
+                f'✅ Добавлен расход <b>{quantity}{symbol}</b>\n🏛 Текущий баланс счёта: <b>{new_balance}{symbol}</b>',
                 parse_mode='HTML',
             )
         else:
