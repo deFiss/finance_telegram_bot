@@ -130,7 +130,7 @@ class Bot:
             entry_points=entry_points,
             states=states,
             fallbacks=[CommandHandler("start", handlers.start)],
-            allow_reentry=True,
+            allow_reentry=False,
         ))
 
     def _add_manage_model_handler(self, entry_btn_word, first_data_state, states, model_conv_obj):
@@ -148,5 +148,5 @@ class Bot:
             entry_points=[MessageHandler(Filters.regex(entry_btn_word), callback=model_conv_obj.menu)],
             states=states,
             fallbacks=[CommandHandler("start", handlers.start)],
-            allow_reentry=True,
+            allow_reentry=False,
         ))
