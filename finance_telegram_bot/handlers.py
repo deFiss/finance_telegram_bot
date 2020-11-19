@@ -3,7 +3,7 @@ from telegram import ReplyKeyboardRemove
 from telegram import ReplyKeyboardMarkup
 from .constants import *
 from .http_sessinon import HttpSession
-from .utils import get_submenu_keyboard
+from .utils import get_submenu_keyboard, clear_dialog as clear_dialog_utils
 
 
 def user_checker(update, context):
@@ -41,7 +41,7 @@ def start(update, context):
         reply_markup=ReplyKeyboardMarkup(btns)
     )
 
-    return 'END'
+    return -1
 
 
 def options_menu(update, context):
@@ -60,16 +60,7 @@ def options_menu(update, context):
 
 
 def clear_dialog(update, context):
-    chat_id = update.message.chat.id
-    current_msg_id = update.message.message_id
-
-    while True:
-        try:
-            context.bot.delete_message(chat_id, current_msg_id)
-            current_msg_id -= 1
-        except:
-            break
-
+    clear_dialog_utils(update, context)
     start(update, context)
 
 

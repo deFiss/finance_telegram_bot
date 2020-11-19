@@ -11,7 +11,7 @@ from .сonversations import *
 class Bot:
 
     def __init__(self):
-        self._updater = Updater(token=os.getenv('TELEGRAM_BOT_TOKEN'), use_context=True)
+        self._updater = Updater(token=os.getenv('TELEGRAM_BOT_TOKEN'))
         self._dp = self._updater.dispatcher
 
     def start(self):
@@ -78,9 +78,9 @@ class Bot:
             model_conv_obj=manage_deposits_conversation,
             first_data_state=MessageHandler(Filters.regex(ADD), callback=manage_deposits_conversation.balance),
             states={
-                'symbol': [MessageHandler(Filters.regex(r'[0-9]'), callback=manage_deposits_conversation.symbol)],
-                'name': [MessageHandler(Filters.text, callback=manage_deposits_conversation.name)],
-                'emoji': [MessageHandler(Filters.text, callback=manage_deposits_conversation.emoji)],
+                'deposit_manage_symbol': [MessageHandler(Filters.regex(r'[0-9]'), callback=manage_deposits_conversation.symbol)],
+                'deposit_manage_name': [MessageHandler(Filters.text, callback=manage_deposits_conversation.name)],
+                'deposit_manage_emoji': [MessageHandler(Filters.text, callback=manage_deposits_conversation.emoji)],
                 'add_item': [MessageHandler(Filters.text, callback=manage_deposits_conversation.add_item)],
             }
         )
@@ -91,7 +91,7 @@ class Bot:
             model_conv_obj=manage_income_types_conversation,
             first_data_state=MessageHandler(Filters.regex(ADD), callback=manage_income_types_conversation.name),
             states={
-                'emoji': [MessageHandler(Filters.text, callback=manage_income_types_conversation.emoji)],
+                'income_type_manage_emoji': [MessageHandler(Filters.text, callback=manage_income_types_conversation.emoji)],
                 'add_item': [MessageHandler(Filters.text, callback=manage_income_types_conversation.add_item)],
             }
         )
@@ -102,7 +102,7 @@ class Bot:
             model_conv_obj=manage_loss_types_conversation,
             first_data_state=MessageHandler(Filters.regex(ADD), callback=manage_loss_types_conversation.name),
             states={
-                'emoji': [MessageHandler(Filters.text, callback=manage_loss_types_conversation.emoji)],
+                'loss_type_manage_emoji': [MessageHandler(Filters.text, callback=manage_loss_types_conversation.emoji)],
                 'add_item': [MessageHandler(Filters.text, callback=manage_loss_types_conversation.add_item)],
             }
         )
@@ -113,12 +113,12 @@ class Bot:
             model_conv_obj=manage_template_conversation,
             first_data_state=MessageHandler(Filters.regex(ADD), callback=manage_template_conversation.name),
             states={
-                'emoji': [MessageHandler(Filters.text, callback=manage_template_conversation.emoji)],
-                'deposit': [MessageHandler(Filters.text, callback=manage_template_conversation.deposit)],
-                'amount': [
+                'template_manage_emoji': [MessageHandler(Filters.text, callback=manage_template_conversation.emoji)],
+                'template_manage_deposit': [MessageHandler(Filters.text, callback=manage_template_conversation.deposit)],
+                'template_manage_amount': [
                     CallbackQueryHandler(manage_template_conversation.amount, pattern='manage_template_deposit_.+')
                 ],
-                'type': [MessageHandler(Filters.text, callback=manage_template_conversation.type)],
+                'template_manage_type': [MessageHandler(Filters.text, callback=manage_template_conversation.type)],
                 'add_item': [
                     CallbackQueryHandler(manage_template_conversation.add_item, pattern='manage_template_type_.+')
                 ],
@@ -129,7 +129,7 @@ class Bot:
         self._dp.add_handler(ConversationHandler(
             entry_points=entry_points,
             states=states,
-            fallbacks=[CommandHandler("start", handlers.start)],
+            fallbacks=[],
             allow_reentry=True,
         ))
 
@@ -147,6 +147,6 @@ class Bot:
         self._dp.add_handler(ConversationHandler(
             entry_points=[MessageHandler(Filters.regex(entry_btn_word), callback=model_conv_obj.menu)],
             states=states,
-            fallbacks=[CommandHandler("start", handlers.start)],
+            fallbacks=[],
             allow_reentry=True,
         ))

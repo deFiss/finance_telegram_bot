@@ -4,7 +4,6 @@ from finance_telegram_bot.сonversations.base_conversation import *
 class UseTemplateConversation(BaseConversation):
 
     @send_loading_message
-    @delete_message
     def select_template(self, update, context, loading_msg):
         resp = self.session.get('template/').json()
         btns = []
@@ -24,7 +23,7 @@ class UseTemplateConversation(BaseConversation):
         return 'use'
 
     @send_loading_message
-    @delete_message
+    @keyboard_message_handler
     def use(self, update, context, loading_msg):
         template_id = update.callback_query.data.split('_')[-1]
         template = self.session.get(f'template/{template_id}/').json()['data']

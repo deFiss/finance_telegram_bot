@@ -1,4 +1,4 @@
-from .base_manage_model_conversation import BaseManageModelConversation, InlineKeyboardButton, InlineKeyboardMarkup
+from .base_manage_model_conversation import *
 
 
 class ManageTemplateConversation(BaseManageModelConversation):
@@ -21,9 +21,10 @@ class ManageTemplateConversation(BaseManageModelConversation):
         update.message.reply_text(
             f'<b>ℹ️ Введите название будущего шаблона</b>',
             parse_mode='HTML',
+            reply_markup=ReplyKeyboardRemove()
         )
 
-        return 'emoji'
+        return 'template_manage_emoji'
 
     @staticmethod
     def emoji(update, context):
@@ -34,7 +35,7 @@ class ManageTemplateConversation(BaseManageModelConversation):
             parse_mode='HTML',
         )
 
-        return 'deposit'
+        return 'template_manage_deposit'
 
     def deposit(self, update, context):
         context.user_data['manage_new_item_emoji'] = update.message.text.replace('_', '')
@@ -46,27 +47,26 @@ class ManageTemplateConversation(BaseManageModelConversation):
                 f'{item["emoji"]} {item["name"]}',
                 callback_data=f'manage_template_deposit_{item["_id"]}'
             )
-            btns.append([btn])
+            btns.append(btn)
 
         update.message.reply_text(
             f'<b>🏛 Выбирите счёт для будущего шаблона</b>',
             parse_mode='HTML',
-            reply_markup=InlineKeyboardMarkup(btns)
+            reply_markup=get_beautiful_keyboard(btns)
         )
 
-        return 'amount'
+        return 'template_manage_amount'
 
-    @staticmethod
-    def amount(update, context):
+    @keyboard_message_handler
+    def amount(self, update, context):
         context.user_data['manage_new_item_deposit'] = update.callback_query.data.split('_')[-1]
-        update.callback_query.answer('✅')
 
         update.callback_query.message.reply_text(
-            f'<b>🔸 Введите сумму</b>',
+            f'<b>🔸 Введите положительную или отрицательную сумму</b>',
             parse_mode='HTML',
         )
 
-        return 'type'
+        return 'template_manage_type'
 
     def type(self, update, context):
         context.user_data['manage_new_item_amount'] = update.message.text
@@ -85,12 +85,12 @@ class ManageTemplateConversation(BaseManageModelConversation):
                 f'{item["emoji"]} {item["name"]}',
                 callback_data=f'manage_template_type_{item["_id"]}'
             )
-            btns.append([btn])
+            btns.append(btn)
 
         update.message.reply_text(
             msg_text,
             parse_mode='HTML',
-            reply_markup=InlineKeyboardMarkup(btns)
+            reply_markup=get_beautiful_keyboard(btns)
         )
 
         return 'add_item'

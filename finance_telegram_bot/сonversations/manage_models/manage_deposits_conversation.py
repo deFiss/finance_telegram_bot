@@ -23,7 +23,7 @@ class ManageDepositsConversation(BaseManageModelConversation):
             reply_markup=ReplyKeyboardRemove()
         )
 
-        return 'symbol'
+        return 'deposit_manage_symbol'
 
     @staticmethod
     def symbol(update, context):
@@ -34,7 +34,7 @@ class ManageDepositsConversation(BaseManageModelConversation):
             parse_mode='HTML',
         )
 
-        return 'name'
+        return 'deposit_manage_name'
 
     @staticmethod
     def name(update, context):
@@ -45,7 +45,7 @@ class ManageDepositsConversation(BaseManageModelConversation):
             parse_mode='HTML',
         )
 
-        return 'emoji'
+        return 'deposit_manage_emoji'
 
     @staticmethod
     def emoji(update, context):

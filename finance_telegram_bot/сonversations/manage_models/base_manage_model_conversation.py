@@ -1,4 +1,5 @@
 from finance_telegram_bot.сonversations.base_conversation import *
+from finance_telegram_bot.utils import get_beautiful_keyboard
 
 
 class BaseManageModelConversation(BaseConversation):
@@ -10,7 +11,6 @@ class BaseManageModelConversation(BaseConversation):
         super().__init__()
 
     @send_loading_message
-    @delete_message
     def menu(self, update, context, loading_msg):
         response = self.session.get(self.model_name).json()
         btns = []
@@ -21,12 +21,12 @@ class BaseManageModelConversation(BaseConversation):
             call_data = f'manage_delete_item_{item["_id"]}'
 
             btn = InlineKeyboardButton(btn_text, callback_data=call_data)
-            btns.append([btn])
+            btns.append(btn)
 
         loading_msg.edit_text(
             f'<b>🗑 Нажмите по счёту, что бы удалить его</b>',
             parse_mode='HTML',
-            reply_markup=InlineKeyboardMarkup(btns)
+            reply_markup=get_beautiful_keyboard(btns)
         )
 
         update.message.reply_text(
@@ -37,7 +37,7 @@ class BaseManageModelConversation(BaseConversation):
 
         return 'manage_del_element_or_add_new'
 
-    @delete_message
+    @keyboard_message_handler
     def delete_item_request(self, update, context):
         context.user_data['delete_request_item_id'] = update.callback_query.data.split('_')[-1]
 
@@ -70,6 +70,7 @@ class BaseManageModelConversation(BaseConversation):
             context.user_data[f'manage_new_item_{self.model_fields_list[-1]}'] = \
                 update.callback_query.data.split('_')[-1]
             update.callback_query.answer('✅')
+            update.callback_query.message.edit_reply_markup()
 
         data = {}
 
@@ -98,4 +99,4 @@ class BaseManageModelConversation(BaseConversation):
                 reply_markup=get_submenu_keyboard([[]])
             )
 
-        return 'END'
+        return -1

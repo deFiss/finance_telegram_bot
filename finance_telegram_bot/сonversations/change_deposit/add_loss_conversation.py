@@ -4,7 +4,6 @@ from finance_telegram_bot.сonversations.base_conversation import *
 class AddLossConversation(BaseConversation):
 
     @send_loading_message
-    @delete_message
     def select_deposit(self, update, context, loading_msg):
         resp = self.session.get('deposit/').json()
         btns = []
@@ -13,18 +12,18 @@ class AddLossConversation(BaseConversation):
                 f'{item["emoji"]} {item["name"]}',
                 callback_data=f'loss_deposit_{item["symbol"]}_{item["_id"]}'
             )
-            btns.append([btn])
+            btns.append(btn)
 
         loading_msg.edit_text(
             f'<b>💳 Выбери счёт</b>',
             parse_mode='HTML',
-            reply_markup=InlineKeyboardMarkup(btns)
+            reply_markup=get_beautiful_keyboard(btns)
         )
 
         return 'select_type'
 
     @send_loading_message
-    @delete_message
+    @keyboard_message_handler
     def select_type(self, update, context, loading_msg):
         context.user_data['loss_deposit_id'] = update.callback_query.data.split('_')[-1]
         context.user_data['loss_deposit_symbol'] = update.callback_query.data.split('_')[-2]
@@ -34,34 +33,29 @@ class AddLossConversation(BaseConversation):
         btns = []
         for item in resp['data']:
             btn = InlineKeyboardButton(f'{item["emoji"]} {item["name"]}', callback_data='loss_type_' + item['_id'])
-            btns.append([btn])
+            btns.append(btn)
 
         loading_msg.edit_text(
             f'<b>〽️ Выбери тип расхода</b>',
             parse_mode='HTML',
-            reply_markup=InlineKeyboardMarkup(btns, resize_keyboard=True)
+            reply_markup=get_beautiful_keyboard(btns)
         )
 
         return 'select_amount'
 
-    @delete_message
+    @keyboard_message_handler
     def select_amount(self, update, context):
         context.user_data['loss_type_id'] = update.callback_query.data.split('_')[-1]
 
-        msg = update.callback_query.message.reply_text(
+        update.callback_query.message.reply_text(
             f'<b>💴 Напиши сумму и комментарий через пробел, если хочешь</b>',
             parse_mode='HTML',
         )
 
-        context.user_data['loss_amount_info_msg_id'] = msg.message_id
-
         return 'add_loss'
 
-
     @send_loading_message
-    @delete_message
     def add_loss(self, update, context, loading_msg):
-        context.bot.delete_message(update.message.chat.id, context.user_data['loss_amount_info_msg_id'])
 
         text = update.message.text
 
@@ -95,11 +89,11 @@ class AddLossConversation(BaseConversation):
         symbol = context.user_data['loss_deposit_symbol']
 
         if history_resp.status_code == 200 and deposit_resp.status_code == 200:
-            update.message.reply_text(
+            loading_msg.edit_text(
                 f'✅ Добавлен расход <b>{quantity}{symbol}</b>\n🏛 Текущий баланс счёта: <b>{new_balance}{symbol}</b>',
                 parse_mode='HTML',
             )
         else:
-            update.message.reply_text('❌')
+            loading_msg.edit_text('❌')
 
         return 'END'

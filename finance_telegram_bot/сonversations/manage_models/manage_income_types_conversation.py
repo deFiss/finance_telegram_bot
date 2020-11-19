@@ -21,7 +21,7 @@ class ManageIncomeTypesConversation(BaseManageModelConversation):
             reply_markup=ReplyKeyboardRemove()
         )
 
-        return 'emoji'
+        return 'income_type_manage_emoji'
 
     @staticmethod
     def emoji(update, context):

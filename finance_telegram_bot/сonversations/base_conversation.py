@@ -4,7 +4,7 @@ from telegram import ReplyKeyboardRemove
 from telegram import ReplyKeyboardMarkup
 from telegram import InlineKeyboardButton
 from telegram import InlineKeyboardMarkup
-from finance_telegram_bot.utils import get_submenu_keyboard
+from finance_telegram_bot.utils import get_submenu_keyboard, get_beautiful_keyboard
 from finance_telegram_bot.constants import *
 
 
@@ -30,15 +30,11 @@ def send_loading_message(func):
     return wrapper
 
 
-def delete_message(func):
+def keyboard_message_handler(func):
     def wrapper(*args, **kwargs):
 
-        try:
-            msg = args[1].callback_query.message.delete()
-            args[1].callback_query.answer('✅')
-        except:
-            args[1].message.delete()
-
+        args[1].callback_query.answer('✅')
+        args[1].callback_query.message.edit_reply_markup()
         return func(*args, **kwargs)
 
     return wrapper
