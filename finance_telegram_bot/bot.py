@@ -5,7 +5,7 @@ from .filters import AdminWhitelistFilter
 import os
 from . import handlers
 from .constants import *
-from .сonversations import *
+from .conversations import *
 
 
 class Bot:
