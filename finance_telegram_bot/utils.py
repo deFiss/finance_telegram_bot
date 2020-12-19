@@ -25,21 +25,7 @@ def clear_dialog(update, context):
 def get_beautiful_keyboard(buttons_list):
     if len(buttons_list) == 0:
         return InlineKeyboardMarkup([])
-
-    root_list = []
-    list_even = len(buttons_list) % 2 == 0
-
-    index = 0
-    while True:
-        if (not list_even and index % 3 == 0) or (list_even and index % 3 != 0):
-            root_list.append([buttons_list[index]])
-            index += 1
-        else:
-            row = [buttons_list[index], buttons_list[index+1]]
-            root_list.append(row)
-            index += 2
-
-        if index >= len(buttons_list):
-            break
+    element_in_row = 2
+    root_list = [buttons_list[x:element_in_row+x] for x in range(0, len(buttons_list), element_in_row)]
 
     return InlineKeyboardMarkup(root_list, resize_keyboard=True)
